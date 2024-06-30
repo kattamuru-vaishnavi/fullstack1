@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: violet;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+            flex-direction: column;
+        }
+        .container {
+            background-color: limegreen;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px; 
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+        }
+        .search-bar {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            display: none; 
+        }
+        .results {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px; 
+            width: 100%; 
+            box-sizing: border-box;
+        }
+        .results div {
+            flex: 1 1 calc(33.333% - 20px); 
+            box-sizing: border-box;
+            max-width: 200px; 
+            text-align: center;
+        }
+        .results img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto;
+        }
+        .results p {
+            color: #333;
+            margin-top: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to your Dashboard, <span id="username">username</span>!</h2>
+        <p>Login successful!</p>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for a movie...">
+            <button id="search-button">Search</button>
+        </div>
+        <p class="error-message" id="error-message">Something went wrong. Please try again.</p>
+    </div>
+    <div class="results" id="results"></div>
+
+    <script>
+        document.getElementById('search-button').addEventListener('click', async () => {
+            const query = document.getElementById('search-input').value;
+            const apiKey = '6926f5f7';
+            const url = `https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${apiKey}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok && data.Response === "True") {
+                    displayResults(data.Search);
+                } else {
+                    showError(data.Error || 'No results found.');
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showError('Something went wrong. Please try again.');
+            }
+        });
+
+        function displayResults(results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+
+            results.forEach(result => {
+                const div = document.createElement('div');
+                const img = document.createElement('img');
+                img.src = result.Poster !== "N/A" ? result.Poster : 'placeholder.jpg';
+                img.alt = result.Title;
+                const title = document.createElement('p');
+                title.innerText = result.Title;
+                div.appendChild(img);
+                div.appendChild(title);
+                resultsContainer.appendChild(div);
+            });
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.style.display = 'block';
+            errorMessage.innerText = message;
+        }
+    </script>
+</body>
+</html>
